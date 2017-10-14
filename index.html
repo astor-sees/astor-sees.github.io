@@ -39,7 +39,7 @@
         // When the user clicks report...
         document.getElementById("btn").addEventListener("click", function() {
           // get the base64 string
-          context.drawImage(video, 0, 0, 250, 250);
+          context.drawImage(video, 0, 0, 200, 200);
           var myPng = canvas.toDataURL().split(',').pop();
 
           // refresh geolocation
@@ -55,10 +55,14 @@
           xmlhttp.setRequestHeader("Content-Type", "application/json");
           xmlhttp.send(JSON.stringify({
             "location": latLng,
-            "message": "from the browser",
+            "message": "from the mobile browser",
             "image": myPng || "browser-no-image"
-          }), function (err, resp) {if (err) console.log(err)});
-          
+          }), function (err, resp) {
+            if (err) {
+              alert(err);
+              console.log(err);
+            }
+          });
           alert('Thanks for reporting!');
         });
 
