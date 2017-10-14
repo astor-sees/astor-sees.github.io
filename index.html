@@ -39,7 +39,7 @@
         // When the user clicks report...
         document.getElementById("btn").addEventListener("click", function() {
           // get the base64 string
-          context.drawImage(video, 0, 0, 250, 375);
+          context.drawImage(video, 0, 0, 250, 250);
           var myPng = canvas.toDataURL().split(',').pop();
 
           // refresh geolocation
