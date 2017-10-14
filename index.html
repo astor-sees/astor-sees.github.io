@@ -27,6 +27,7 @@
         var video = document.getElementById("video");
         var canvas = document.getElementById("canvas");
         var context = canvas.getContext("2d");
+        var btn = document.getElementById("btn");
         var latLng = [0, 0];
 
         // Initialize geolocation, so users see the popup right away
@@ -37,7 +38,7 @@
         }
 
         // When the user clicks report...
-        document.getElementById("btn").addEventListener("click", function() {
+        btn.addEventListener("click", function() {
           // get the base64 string
           context.drawImage(video, 0, 0, 200, 200);
           var myPng = canvas.toDataURL().split(',').pop();
@@ -53,17 +54,25 @@
           var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
           xmlhttp.open("POST", "https://openwhisk.ng.bluemix.net/api/v1/web/william-prod_learning/astor-sees-will/accept_image.json");
           xmlhttp.setRequestHeader("Content-Type", "application/json");
+
+          // Show what Watson found on response
+          xmlhttp.addEventListener("load", function(resp) {
+            alert('Thanks for reporting! \nWatson Recognizes: \n' +
+              JSON.parse(this.responseText).tags.join('\n')
+            );
+            btn.style.display = 'block';
+            video.play();
+          });
+
           xmlhttp.send(JSON.stringify({
             "location": latLng,
             "message": "from the mobile browser",
             "image": myPng || "browser-no-image"
-          }), function (err, resp) {
-            if (err) {
-              alert(err);
-              console.log(err);
-            }
-          });
-          alert('Thanks for reporting!');
+          }));
+
+          // Hide the buttn until response
+          video.pause();
+          btn.style.display = 'none';
         });
 
         // Get the camera and set it as the video tag source
