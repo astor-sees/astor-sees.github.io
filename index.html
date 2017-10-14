@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+  <head>
+    <title>Make A Report</title>
+    <style>
+      body {
+        margin: 0px;
+        overflow: hidden;
+      }
+      #video {
+        height: 85vh;
+        width: 100vw;
+      }
+      #btn {
+        height: 15vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="video" autoplay></video>
+    <button id="btn">Report</button>
+    <canvas id="canvas" style="display:none" width="1024" height="1024"></canvas>
+
+    <script>
+        var video = document.getElementById("video");
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        var latLng = [0, 0];
+
+        // Initialize geolocation, so users see the popup right away
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            latLng = [position.coords.latitude, position.coords.longitude]
+          })
+        }
+
+        // When the user clicks report...
+        document.getElementById("btn").addEventListener("click", function() {
+          // get the base64 string
+          context.drawImage(video, 0, 0, 250, 375);
+          var myPng = canvas.toDataURL().split(',').pop();
+
+          // refresh geolocation
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+              latLng = [position.coords.latitude, position.coords.longitude]
+            })
+          }
+
+          // Post the data
+          var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
+          xmlhttp.open("POST", "https://openwhisk.ng.bluemix.net/api/v1/web/william-prod_learning/astor-sees-will/accept_image.json");
+          xmlhttp.setRequestHeader("Content-Type", "application/json");
+          xmlhttp.send(JSON.stringify({
+            "location": latLng,
+            "message": "from the browser",
+            "image": myPng || "browser-no-image"
+          }), function (err, resp) {if (err) console.log(err)});
+        });
+
+        // Get the camera and set it as the video tag source
+        navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}})
+          .then(function(mediaStream) { video.srcObject = mediaStream; })
+          .catch(function(err) { console.log(err); });
+    </script>
+
+  </body>
+</html>
